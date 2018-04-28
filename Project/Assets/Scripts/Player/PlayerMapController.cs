@@ -5,7 +5,7 @@ public sealed class PlayerMapController : Manager<PlayerMapController>
 {
 	public System.Action<Pawn> OnInformationUpdated;
 	public System.Action<Pawn, Action> OnSelectionUpdated;
-
+	
 	public Pawn CurrentPawn;
 	public Action CurrentAction;
 
@@ -62,7 +62,7 @@ public sealed class PlayerMapController : Manager<PlayerMapController>
 	
 	private void OnPawnHit(Pawn _pawn)
 	{
-		Log("Hit on " + _pawn.name);
+		//Log("Hit on " + _pawn.name);
 		if (OnInformationUpdated != null)
 		{
 			OnInformationUpdated(_pawn);
@@ -93,7 +93,7 @@ public sealed class PlayerMapController : Manager<PlayerMapController>
 
 	private void OnSelectPawn(Pawn _pawn)
 	{
-		Log("Select " + _pawn.name);
+		//Log("Select " + _pawn.name);
 		if (_pawn.Control == PawnControl.Player)
 		{
 			CurrentPawn = _pawn;
@@ -104,14 +104,14 @@ public sealed class PlayerMapController : Manager<PlayerMapController>
 			m_selection = Map.Instance.GetWalkableTiles(CurrentPawn.Position, CurrentPawn.Speed);
 			for(int i=0; i<m_selection.Length; i++)
 			{
-				m_selection[i].SelectTileActive(true);
+				m_selection[i].SelectTileActive(true, 0);
 			}
 		}
 	}
 
 	private void OnDeselectPawn(Pawn _pawn)
 	{
-		Log("Deselect " + _pawn.name);
+		//Log("Deselect " + _pawn.name);
 		if (_pawn.Control == PawnControl.Player)
 		{
 			CurrentPawn = null;
@@ -122,7 +122,7 @@ public sealed class PlayerMapController : Manager<PlayerMapController>
 			}
 			for (int i = 0; i < m_selection.Length; i++)
 			{
-				m_selection[i].SelectTileActive(true);
+				m_selection[i].SelectTileActive(false, 0);
 			}
 			m_selection = null;
 		}

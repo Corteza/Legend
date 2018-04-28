@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public abstract class Pawn : MonoBehaviour
+public abstract class Pawn : MonoBehaviour, ITileElement
 {
 	public Action<int, int, bool> HealthUpdatedEvent;
 	public Action<Position> PositionUpdatedEvent;
@@ -20,6 +20,8 @@ public abstract class Pawn : MonoBehaviour
 	public int Initiative { get; protected set; }
 	public int Speed { get; protected set; }
 
+	public TileElementType Type { get { return TileElementType.Pawn; } }
+	public MapTile Tile { get; protected set; }
 	public Position Position { get; protected set; }
 
 	public Action MovementAction;
@@ -67,9 +69,9 @@ public abstract class Pawn : MonoBehaviour
 		NotifyHealthUpdate(_amount);
 	}
 
-	public void Move(Position _newPosition)
+	public void Move(Position _position)
 	{
-		Position = _newPosition;
+		Position = _position;
 		NotifyPositionUpdate();
 	}
 	
