@@ -2,7 +2,11 @@
 public enum MapState
 {
 	Start,
+	EnemyTurnPhaseMove,
+	StartPlayerTurn,
 	PlayerTurn,
-	EnemyTurn,
+	PlayerMoveSelected,
+	PlayerActionSelected,
+	EnemyTurnPhaseAction,
 	End,
 }

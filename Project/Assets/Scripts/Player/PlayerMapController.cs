@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
-public sealed class PlayerMapController : Manager<PlayerMapController>
+public sealed class PlayerMapController : Manager<PlayerMapController>, IStateObserver
 {
 	public System.Action<Pawn> OnInformationUpdated;
 	public System.Action<Pawn, Action> OnSelectionUpdated;
@@ -24,12 +24,37 @@ public sealed class PlayerMapController : Manager<PlayerMapController>
 
 	protected override void InitializeManager()
 	{
-		MapStateMachine.Instance.StateUpdatedEvent += OnStateUpdated;
+		MapStateMachine.Instance.AddObserver(this);
 	}
 
-	private void OnStateUpdated(MapState _state)
+	public void UpdateState(MapState _newState)
 	{
-		m_playerTurnActive = true;// _state == MapState.PlayerTurn;
+		m_playerTurnActive = false;
+
+		switch(_newState)
+		{
+			case MapState.StartPlayerTurn:
+				ResetPlayer();
+				MapStateMachine.Instance.SetState(MapState.PlayerTurn, 0.5f);
+				break;
+
+			case MapState.PlayerTurn:
+				m_playerTurnActive = true;
+				break;
+
+			case MapState.PlayerMoveSelected:
+				m_playerTurnActive = true;
+				break;
+
+			case MapState.PlayerActionSelected:
+				m_playerTurnActive = true;
+				break;
+		}
+	}
+
+	private void ResetPlayer()
+	{
+
 	}
 
 	private void Update()
@@ -132,7 +157,7 @@ public sealed class PlayerMapController : Manager<PlayerMapController>
 	{
 		if(MapStateMachine.IsSet)
 		{
-			MapStateMachine.Instance.StateUpdatedEvent -= OnStateUpdated;
+			MapStateMachine.Instance.RemoveObserver(this);
 		}
 	}
 }

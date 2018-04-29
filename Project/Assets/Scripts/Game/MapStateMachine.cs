@@ -1,13 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 public sealed class MapStateMachine : Manager<MapStateMachine>
 {
-	public Action<MapState> StateUpdatedEvent;
-	
 	public MapState MapState { get; private set; }
+
+	private List<IStateObserver> m_observerList = new List<IStateObserver>();
 
 	public override string GetManagerName()
 	{
@@ -16,6 +15,7 @@ public sealed class MapStateMachine : Manager<MapStateMachine>
 
 	protected override void InitializeManager()
 	{
+		ClearObservers();
 		MapState = MapState.Start;
 	}
 
@@ -32,55 +32,49 @@ public sealed class MapStateMachine : Manager<MapStateMachine>
 		}
 		MapState = _state;
 		Log("Selected new Map State " + MapState.ToString());
-		UpdateState();
-		NotifyState();
+		NotifyObservers();
 	}
 
 	private void SetStateWithDelay(MapState _state)
 	{
 		SetState(_state);
 	}
-
-	private void UpdateState()
+	
+	public void AddObserver(IStateObserver _observer, bool _notifyCurrentState = false)
 	{
-		switch (MapState)
+		if(!m_observerList.Contains(_observer))
 		{
-			case MapState.Start:
-				OnStart();
-				break;
-
-			case MapState.PlayerTurn:
-				OnPlayerTurn();
-				break;
-
-			case MapState.EnemyTurn:
-				OnEnemyTurn();
-				break;
-
-			case MapState.End:
-				OnEnd();
-				break;
+			m_observerList.Add(_observer);
+			if(_notifyCurrentState)
+			{
+				_observer.UpdateState(MapState);
+			}
 		}
 	}
 
-	private void OnStart() { }
-
-	private void OnPlayerTurn() { }
-
-	private void OnEnemyTurn() { }
-
-	private void OnEnd() { }
-
-	private void NotifyState()
+	public void RemoveObserver(IStateObserver _observer)
 	{
-		if(StateUpdatedEvent != null)
+		if(m_observerList.Contains(_observer))
 		{
-			StateUpdatedEvent(MapState);
+			m_observerList.Remove(_observer);
 		}
+	}
+
+	private void NotifyObservers()
+	{
+		for(int i=0; i<m_observerList.Count; i++)
+		{
+			m_observerList[i].UpdateState(MapState);
+		}
+	}
+
+	public void ClearObservers()
+	{
+		m_observerList.Clear();
 	}
 
 	protected override void DestroyManager()
 	{
-		StateUpdatedEvent = null;
+		ClearObservers();
 	}
 }
